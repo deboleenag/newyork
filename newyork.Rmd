@@ -1,0 +1,103 @@
+---
+title: "Newyork"
+author: "Deboleena"
+date: "May 6, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+library(tidyverse)
+library(DataExplorer)
+library(ggplot2)
+library(caret)
+library(readxl)
+library(boxplotdbl)
+library(GGally)
+library(MASS)
+library(factoextra)
+
+```
+
+```{r}
+library(readr)
+df <- read_csv("C:/Users/Deboleena/OneDrive - Southern Methodist University/Desktop/MSBA/Inteview Prep/NewYork/green_tripdata_2016-09.csv")
+df <- df[,-15]
+#save to new csv file
+write_csv(df, path = "df.csv")
+```
+
+```{r}
+str(df)
+```
+```{r}
+summary(df)
+```
+check missing values
+```{r}
+plot_missing(df)
+```
+```{r}
+df$trip_type <- as.factor(df$trip_type)
+df$payment_type <- as.factor(df$payment_type)
+df$RatecodeID <- as.factor(df$RatecodeID)
+View(df)
+```
+
+```{r}
+ggplot(data = df , aes(x= trip_distance, y = fare_amount, colour = passenger_count))+
+  geom_point(aes(size = passenger_count))
+```
+```{r}
+
+#1= Standard rate 2=JFK 3=Newark 4=Nassau or Westchester 5=Negotiated fare 6=Group ride
+ggplot(data = df , aes(x = RatecodeID, y = trip_distance, fill = trip_type))+
+  geom_bar(stat = "identity")
+  
+```
+
+```{r}
+ggplot(data = df , aes(x = df$total_amount, y = df$trip_distance, color = df$trip_type))+
+  geom_point()+
+  facet_wrap(~payment_type)
+
+```
+Histogram of trip distance 
+```{r}
+ggplot(df, aes(trip_distance, colour = "blue"))+
+  geom_histogram(binwidth = .5)+
+  xlim(0, 30)
+
+```
+```{r}
+ggcorr(df)
+```
+```{r}
+df$pickup <- strftime(df$lpep_pickup_datetime, format="%H")
+df$dropoff <- strftime(df$lpep_dropoff_datetime, format="%H")
+```
+
+```{r}
+ d <- df %>%
+  group_by(pickup) %>%
+  summarise(mean = mean(trip_distance), meadian = median(trip_distance))%>%
+  arrange(desc(pickup))
+```
+```{r}
+ggplot(data = d, aes(x = pickup, y = mean))+
+  geom_point()
+```
+
+```{r}
+ f <- df %>%
+  group_by(dropoff) %>%
+  summarise(mean = mean(trip_distance), meadian = median(trip_distance))%>%
+  arrange(desc(dropoff))
+```
+```{r}
+ggplot(data = f, aes(x = dropoff, y = mean))+
+  geom_point()
+```
+
